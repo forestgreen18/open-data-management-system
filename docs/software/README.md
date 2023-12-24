@@ -730,3 +730,300 @@ export class UserAttributesController {
   }
 }
 ```
+
+## Attributes module
+
+**Filename: attributes.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { AttributesService } from './attributes.service';
+import { AttributesController } from './attributes.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [AttributesService],
+  controllers: [AttributesController],
+})
+export class AttributesModule {}
+```
+
+---
+
+**Filename: attributes.module.ts**
+
+```Typescript
+// attributes.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Attributes, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class AttributesService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<Attributes[]> {
+    return this.prisma.attributes.findMany();
+  }
+
+  async findOne(attributesId: string): Promise<Attributes> {
+    const attributes = await this.prisma.attributes.findUnique({
+      where: {
+        id: attributesId,
+      },
+    });
+
+    if (!attributes) {
+      throw new NotFoundException(
+        `Attributes with ID ${attributesId} not found`,
+      );
+    }
+
+    return attributes;
+  }
+
+  async create(data: Prisma.AttributesCreateInput): Promise<Attributes> {
+    return this.prisma.attributes.create({
+      data,
+    });
+  }
+
+  async updateOne(
+    attributesId: string,
+    data: Prisma.AttributesUpdateInput,
+  ): Promise<Attributes> {
+    const attributes = await this.prisma.attributes.findUnique({
+      where: { id: attributesId },
+    });
+
+    if (!attributes) {
+      throw new NotFoundException(
+        `Attributes with ID ${attributesId} not found`,
+      );
+    }
+
+    return this.prisma.attributes.update({
+      where: { id: attributesId },
+      data,
+    });
+  }
+
+  async deleteOne(attributesId: string): Promise<Attributes> {
+    const attributes = await this.prisma.attributes.findUnique({
+      where: { id: attributesId },
+    });
+
+    if (!attributes) {
+      throw new NotFoundException(
+        `Attributes with ID ${attributesId} not found`,
+      );
+    }
+
+    return this.prisma.attributes.delete({
+      where: { id: attributesId },
+    });
+  }
+}
+```
+
+---
+
+**Filename: attributes.controller.ts**
+
+```Typescript
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { Attributes, Prisma } from '@prisma/client';
+import { AttributesService } from './attributes.service';
+
+@Controller('attributes')
+export class AttributesController {
+  constructor(private readonly attributesService: AttributesService) {}
+
+  @Get()
+  async findAll(): Promise<Attributes[]> {
+    return this.attributesService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Attributes> {
+    return this.attributesService.findOne(id);
+  }
+
+  @Post()
+  async create(
+    @Body() data: Prisma.AttributesCreateInput,
+  ): Promise<Attributes> {
+    return this.attributesService.create(data);
+  }
+
+  @Patch(':id')
+  async updateOne(
+    @Param('id') id: string,
+    @Body() data: Prisma.AttributesUpdateInput,
+  ): Promise<Attributes> {
+    return this.attributesService.updateOne(id, data);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id: string): Promise<Attributes> {
+    return this.attributesService.deleteOne(id);
+  }
+}
+```
+
+## Permissions module
+
+**Filename: permissions.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { PermissionsService } from './permissions.service';
+import { PermissionsController } from './permissions.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [PermissionsService],
+  controllers: [PermissionsController],
+})
+export class PermissionsModule {}
+```
+
+---
+
+**Filename: permissions.service.ts**
+
+```Typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Permissions, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class PermissionsService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<Permissions[]> {
+    return this.prisma.permissions.findMany();
+  }
+
+  async findOne(permissionsId: string): Promise<Permissions> {
+    const permissions = await this.prisma.permissions.findUnique({
+      where: {
+        id: permissionsId,
+      },
+    });
+
+    if (!permissions) {
+      throw new NotFoundException(
+        `Permissions with ID ${permissionsId} not found`,
+      );
+    }
+
+    return permissions;
+  }
+
+  async create(data: Prisma.PermissionsCreateInput): Promise<Permissions> {
+    return this.prisma.permissions.create({
+      data,
+    });
+  }
+
+  async updateOne(
+    permissionsId: string,
+    data: Prisma.PermissionsUpdateInput,
+  ): Promise<Permissions> {
+    const permissions = await this.prisma.permissions.findUnique({
+      where: { id: permissionsId },
+    });
+
+    if (!permissions) {
+      throw new NotFoundException(
+        `Permissions with ID ${permissionsId} not found`,
+      );
+    }
+
+    return this.prisma.permissions.update({
+      where: { id: permissionsId },
+      data,
+    });
+  }
+
+  async deleteOne(permissionsId: string): Promise<Permissions> {
+    const permissions = await this.prisma.permissions.findUnique({
+      where: { id: permissionsId },
+    });
+
+    if (!permissions) {
+      throw new NotFoundException(
+        `Permissions with ID ${permissionsId} not found`,
+      );
+    }
+
+    return this.prisma.permissions.delete({
+      where: { id: permissionsId },
+    });
+  }
+}
+```
+
+---
+
+**Filename: permissions.controller.ts**
+
+```Typescript
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { Permissions, Prisma } from '@prisma/client';
+import { PermissionsService } from './permissions.service';
+
+@Controller('permissions')
+export class PermissionsController {
+  constructor(private readonly permissionsService: PermissionsService) {}
+
+  @Get()
+  async findAll(): Promise<Permissions[]> {
+    return this.permissionsService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<Permissions | null> {
+    return this.permissionsService.findOne(id);
+  }
+
+  @Post()
+  async create(
+    @Body() data: Prisma.PermissionsCreateInput,
+  ): Promise<Permissions> {
+    return this.permissionsService.create(data);
+  }
+
+  @Patch(':id')
+  async updateOne(
+    @Param('id') id: string,
+    @Body() data: Prisma.PermissionsUpdateInput,
+  ): Promise<Permissions> {
+    return this.permissionsService.updateOne(id, data);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id: string): Promise<Permissions> {
+    return this.permissionsService.deleteOne(id);
+  }
+}
+```
