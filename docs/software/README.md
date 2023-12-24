@@ -243,3 +243,302 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 ```
 
 - RESTfull сервіс для управління даними
+
+Для взаємодії з базою даних я використовував стек технологій: Node.js (фреймворк Nest.js), та PrismaORM.
+
+## Конфігураційний файл PRISMA ORM
+
+```PRISMA
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model DataFolder {
+  id          String   @id @default(uuid())
+  description String?  @db.VarChar(254)
+  date        DateTime @default(now())
+  owner       String   @db.VarChar(36)
+  name        String   @unique @db.VarChar(45)
+  userId      String   @map("User_id")
+  user        User     @relation(fields: [userId], references: [id])
+  data        DataFolder_has_Data[]
+}
+
+model Data {
+  id          String   @id @default(uuid())
+  size        Float
+  date        DateTime
+  dataType    String   @db.VarChar(45)
+  name        String   @db.VarChar(45)
+  description String?  @db.VarChar(254)
+  tags        String?  @db.VarChar(254)
+  dataFolders DataFolder_has_Data[]
+}
+
+model DataFolder_has_Data {
+  Data_id       String
+  DataFolder_id String
+  data          Data     @relation(fields: [Data_id], references: [id])
+  dataFolder    DataFolder @relation(fields: [DataFolder_id], references: [id])
+
+  @@id([Data_id, DataFolder_id])
+}
+
+
+
+
+model Search {
+  id          String     @id @default(uuid())
+  status      String     @db.VarChar(45)
+  date        DateTime
+  searchType  String     @db.VarChar(45)
+  target      String?    @db.VarChar(36)
+  parameters  String?    @db.VarChar(254)
+  users       User[]     @relation("UserToSearch")
+}
+
+model User {
+   id             String           @id @default(uuid())
+  username       String           @db.VarChar(45)
+  password       String           @db.VarChar(45)
+  email          String           @unique @db.VarChar(254)
+  dataFolders    DataFolder[]
+  searches Search[] @relation("UserToSearch")
+  userAttributes UserAttributes[]
+}
+
+
+
+model Permissions {
+  id          String       @id @default(uuid())
+  description String?      @db.VarChar(254)
+  level       Int
+  name        String       @unique @db.VarChar(45)
+  attributes  Attributes[]
+}
+
+model Attributes {
+  id            String         @id @default(uuid())
+  description   String?        @db.VarChar(254)
+  value         String         @db.VarChar(45)
+  attributeType String         @db.VarChar(45)
+  name          String         @unique @db.VarChar(45)
+  permissionsId String         @map("Permissions_id")
+  permissions   Permissions    @relation(fields: [permissionsId], references: [id])
+  userAttributes UserAttributes[]
+}
+
+model UserAttributes {
+  id          String     @id @default(uuid())
+  attributeId String     @map("AttributeID")
+  attributes  Attributes @relation(fields: [attributeId], references: [id])
+  userId      String     @map("User_id")
+  user        User       @relation(fields: [userId], references: [id])
+}
+
+```
+
+## Restfull service
+
+**Filename: main.ts**
+
+```Typescript
+
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
+}
+bootstrap();
+
+
+```
+
+---
+
+**Filename: app.module.ts**
+
+```Typescript
+
+import { Module } from '@nestjs/common';
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { PrismaModule } from './prisma/prisma.module';
+import { UserModule } from './user/user.module';
+import { DataFolderModule } from './data-folder/data-folder.module';
+import { DataModule } from './data/data.module';
+import { PermissionsModule } from './permissions/permissions.module';
+import { AttributesModule } from './attributes/attributes.module';
+import { UserAttributesModule } from './user-attributes/user-attributes.module';
+import { DataFolderHasDataModule } from './data-folder-has-data/data-folder-has-data.module';
+
+@Module({
+  imports: [PrismaModule, UserModule, DataFolderModule, DataModule, PermissionsModule, AttributesModule, UserAttributesModule, DataFolderHasDataModule],
+  controllers: [AppController],
+  providers: [AppService],
+})
+export class AppModule {}
+```
+
+---
+
+## User module
+
+**Filename: user.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { UserService } from './user.service';
+import { UserController } from './user.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [UserService],
+  controllers: [UserController],
+})
+export class UserModule {}
+
+```
+
+---
+
+**Filename: user.service.ts**
+
+```Typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { User, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class UserService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<User[]> {
+    return this.prisma.user.findMany({
+      include: {
+        userAttributes: true,
+        dataFolders: true,
+      },
+    });
+  }
+
+  async findOne(userId: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: {
+        id: userId,
+      },
+      include: {
+        userAttributes: true,
+        dataFolders: true,
+      },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return user;
+  }
+
+  async updateOne(userId: string, data: Prisma.UserUpdateInput): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return this.prisma.user.update({
+      where: { id: userId },
+      data,
+    });
+  }
+
+  async deleteOne(userId: string): Promise<User> {
+    const user = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      throw new NotFoundException(`User with ID ${userId} not found`);
+    }
+
+    return this.prisma.user.delete({
+      where: { id: userId },
+    });
+  }
+
+  async create(data: Prisma.UserCreateInput): Promise<User> {
+    return this.prisma.user.create({
+      data,
+    });
+  }
+}
+```
+
+---
+
+**Filename: user.controller.ts**
+
+```Typescript
+import {
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  Body,
+  Delete,
+} from '@nestjs/common';
+import { UserService } from './user.service';
+import { User, Prisma } from '@prisma/client';
+
+@Controller('users')
+export class UserController {
+  constructor(private userService: UserService) {}
+
+  @Get()
+  async findAll(): Promise<User[]> {
+    return this.userService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<User | null> {
+    return this.userService.findOne(id);
+  }
+
+  @Patch(':id')
+  async updateOne(
+    @Param('id') id: string,
+    @Body() userData: Prisma.UserUpdateInput,
+  ): Promise<User> {
+    return this.userService.updateOne(id, userData);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id: string): Promise<User> {
+    return this.userService.deleteOne(id);
+  }
+
+  @Post()
+  async create(@Body() userData: Prisma.UserCreateInput): Promise<User> {
+    return this.userService.create(userData);
+  }
+
+  // Add other methods as needed...
+}
+
+```
