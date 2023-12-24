@@ -1027,3 +1027,472 @@ export class PermissionsController {
   }
 }
 ```
+
+## Data folder module
+
+**Filename: data-folder.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { DataFolderController } from './data-folder.controller';
+import { DataFolderService } from './data-folder.service';
+import { PrismaModule } from 'src/prisma/prisma.module';
+@Module({
+  imports: [PrismaModule],
+  controllers: [DataFolderController],
+  providers: [DataFolderService],
+})
+export class DataFolderModule {}
+```
+
+---
+
+**Filename: data-folder.service.ts**
+
+```Typescript
+// data-folder.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DataFolder, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class DataFolderService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<DataFolder[]> {
+    return this.prisma.dataFolder.findMany({
+      include: {
+        data: true,
+      },
+    });
+  }
+
+  async findOne(dataFolderId: string): Promise<DataFolder> {
+    const dataFolder = await this.prisma.dataFolder.findUnique({
+      where: {
+        id: dataFolderId,
+      },
+      include: {
+        data: true,
+      },
+    });
+
+    if (!dataFolder) {
+      throw new NotFoundException(
+        `DataFolder with ID ${dataFolderId} not found`,
+      );
+    }
+
+    return dataFolder;
+  }
+
+  async create(
+    userId: string,
+    data: Prisma.DataFolderCreateInput,
+  ): Promise<DataFolder> {
+    return this.prisma.dataFolder.create({
+      data: {
+        ...data,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
+      },
+    });
+  }
+
+  async updateOne(
+    dataFolderId: string,
+    data: Prisma.DataFolderUpdateInput,
+  ): Promise<DataFolder> {
+    const dataFolder = await this.prisma.dataFolder.findUnique({
+      where: { id: dataFolderId },
+    });
+
+    if (!dataFolder) {
+      throw new NotFoundException(
+        `DataFolder with ID ${dataFolderId} not found`,
+      );
+    }
+
+    return this.prisma.dataFolder.update({
+      where: { id: dataFolderId },
+      data,
+    });
+  }
+
+  async deleteOne(dataFolderId: string): Promise<DataFolder> {
+    const dataFolder = await this.prisma.dataFolder.findUnique({
+      where: { id: dataFolderId },
+    });
+
+    if (!dataFolder) {
+      throw new NotFoundException(
+        `DataFolder with ID ${dataFolderId} not found`,
+      );
+    }
+
+    return this.prisma.dataFolder.delete({
+      where: { id: dataFolderId },
+    });
+  }
+}
+```
+
+---
+
+**Filename: data-folder.controller.ts**
+
+```Typescript
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+} from '@nestjs/common';
+import { DataFolderService } from './data-folder.service';
+import { DataFolder, Prisma } from '@prisma/client';
+
+@Controller('data-folder')
+export class DataFolderController {
+  constructor(private dataFolderService: DataFolderService) {}
+
+  @Get()
+  async findAll(): Promise<DataFolder[]> {
+    return this.dataFolderService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<DataFolder | null> {
+    return this.dataFolderService.findOne(id);
+  }
+
+  @Post()
+  async create(
+    @Body() data: { userId: string; folder: Prisma.DataFolderCreateInput },
+  ): Promise<DataFolder> {
+    return this.dataFolderService.create(data.userId, data.folder);
+  }
+
+  @Patch(':id')
+  async updateOne(
+    @Param('id') id: string,
+    @Body() dataFolderData: Prisma.DataFolderUpdateInput,
+  ): Promise<DataFolder> {
+    return this.dataFolderService.updateOne(id, dataFolderData);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id: string): Promise<DataFolder> {
+    return this.dataFolderService.deleteOne(id);
+  }
+}
+```
+
+## Data folder has data module
+
+**Filename: dto/data-folder-has-data.ts**
+
+```Typescript
+export class CreateDataFolder_has_DataDto {
+  DataFolder_id: string;
+  Data_id: string;
+}
+```
+
+---
+
+**Filename: data-folder-has-data.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { DataFolderHasDataService } from './data-folder-has-data.service';
+import { DataFolderHasDataController } from './data-folder-has-data.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [DataFolderHasDataService],
+  controllers: [DataFolderHasDataController],
+})
+export class DataFolderHasDataModule {}
+```
+
+---
+
+**Filename: data-folder-has-data.module.ts**
+
+```Typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class DataFolderHasDataService {
+  constructor(private prisma: PrismaService) {}
+
+  async create(DataFolder_id: string, Data_id: string) {
+    return this.prisma.dataFolder_has_Data.create({
+      data: {
+        DataFolder_id: DataFolder_id,
+        Data_id: Data_id,
+      },
+    });
+  }
+
+  async findAll() {
+    return this.prisma.dataFolder_has_Data.findMany();
+  }
+
+  async findOne(DataFolder_id: string, Data_id: string) {
+    const dataFolder_has_Data =
+      await this.prisma.dataFolder_has_Data.findUnique({
+        where: {
+          Data_id_DataFolder_id: {
+            Data_id: Data_id,
+            DataFolder_id: DataFolder_id,
+          },
+        },
+      });
+
+    if (!dataFolder_has_Data) {
+      throw new NotFoundException(
+        `Record with Data_id ${Data_id} and DataFolder_id ${DataFolder_id} not found`,
+      );
+    }
+
+    return dataFolder_has_Data;
+  }
+
+  async delete(DataFolder_id: string, Data_id: string) {
+    const dataFolder_has_Data =
+      await this.prisma.dataFolder_has_Data.findUnique({
+        where: {
+          Data_id_DataFolder_id: {
+            Data_id: Data_id,
+            DataFolder_id: DataFolder_id,
+          },
+        },
+      });
+
+    if (!dataFolder_has_Data) {
+      throw new NotFoundException(
+        `Record with Data_id ${Data_id} and DataFolder_id ${DataFolder_id} not found`,
+      );
+    }
+
+    return this.prisma.dataFolder_has_Data.delete({
+      where: {
+        Data_id_DataFolder_id: {
+          Data_id: Data_id,
+          DataFolder_id: DataFolder_id,
+        },
+      },
+    });
+  }
+}
+```
+
+---
+
+**Filename: data-folder-has-data.module.ts**
+
+```Typescript
+import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
+import { DataFolderHasDataService } from './data-folder-has-data.service';
+import { CreateDataFolder_has_DataDto } from 'src/data-folder-has-data/dto/data-folder-has-data-create';
+
+@Controller('data-folder-has-data')
+export class DataFolderHasDataController {
+  constructor(
+    private readonly DataFolderHasDataService: DataFolderHasDataService,
+  ) {}
+
+  @Post()
+  async create(
+    @Body() createDataFolder_has_DataDto: CreateDataFolder_has_DataDto,
+  ) {
+    return this.DataFolderHasDataService.create(
+      createDataFolder_has_DataDto.DataFolder_id,
+      createDataFolder_has_DataDto.Data_id,
+    );
+  }
+
+  @Get()
+  async findAll() {
+    return this.DataFolderHasDataService.findAll();
+  }
+
+  @Get(':DataFolder_id/:Data_id')
+  async findOne(
+    @Param('DataFolder_id') DataFolder_id: string,
+    @Param('Data_id') Data_id: string,
+  ) {
+    return this.DataFolderHasDataService.findOne(DataFolder_id, Data_id);
+  }
+
+  @Delete(':DataFolder_id/:Data_id')
+  async delete(
+    @Param('DataFolder_id') DataFolder_id: string,
+    @Param('Data_id') Data_id: string,
+  ) {
+    return this.DataFolderHasDataService.delete(DataFolder_id, Data_id);
+  }
+}
+```
+
+## Data module
+
+**Filename: data.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { DataService } from './data.service';
+import { DataController } from './data.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [DataService],
+  controllers: [DataController],
+})
+export class DataModule {}
+```
+
+---
+
+**Filename: data.service.ts**
+
+```Typescript
+// data.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Data, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class DataService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<Data[]> {
+    return this.prisma.data.findMany();
+  }
+  async findOne(dataId: string): Promise<Data> {
+    const data = await this.prisma.data.findUnique({
+      where: {
+        id: dataId,
+      },
+    });
+
+    if (!data) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return data;
+  }
+
+  async create(data: Prisma.DataCreateInput): Promise<Data> {
+    return this.prisma.data.create({
+      data,
+    });
+  }
+
+  async updateOne(dataId: string, data: Prisma.DataUpdateInput): Promise<Data> {
+    const dataItem = await this.prisma.data.findUnique({
+      where: { id: dataId },
+    });
+
+    if (!dataItem) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return this.prisma.data.update({
+      where: { id: dataId },
+      data,
+    });
+  }
+
+  async deleteOne(dataId: string): Promise<Data> {
+    const dataItem = await this.prisma.data.findUnique({
+      where: { id: dataId },
+    });
+
+    if (!dataItem) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return this.prisma.data.delete({
+      where: { id: dataId },
+    });
+  }
+}
+```
+
+---
+
+**Filename: data.controller.ts**
+
+```Typescript
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Data, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class DataService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<Data[]> {
+    return this.prisma.data.findMany();
+  }
+  async findOne(dataId: string): Promise<Data> {
+    const data = await this.prisma.data.findUnique({
+      where: {
+        id: dataId,
+      },
+    });
+
+    if (!data) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return data;
+  }
+
+  async create(data: Prisma.DataCreateInput): Promise<Data> {
+    return this.prisma.data.create({
+      data,
+    });
+  }
+
+  async updateOne(dataId: string, data: Prisma.DataUpdateInput): Promise<Data> {
+    const dataItem = await this.prisma.data.findUnique({
+      where: { id: dataId },
+    });
+
+    if (!dataItem) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return this.prisma.data.update({
+      where: { id: dataId },
+      data,
+    });
+  }
+
+  async deleteOne(dataId: string): Promise<Data> {
+    const dataItem = await this.prisma.data.findUnique({
+      where: { id: dataId },
+    });
+
+    if (!dataItem) {
+      throw new NotFoundException(`Data with ID ${dataId} not found`);
+    }
+
+    return this.prisma.data.delete({
+      where: { id: dataId },
+    });
+  }
+}
+```
