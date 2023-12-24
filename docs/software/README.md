@@ -23,6 +23,22 @@ CREATE SCHEMA IF NOT EXISTS `open_data_management_system` DEFAULT CHARACTER SET 
 USE `open_data_management_system` ;
 
 -- -----------------------------------------------------
+-- Table `open_data_management_system`.`User`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `open_data_management_system`.`User` ;
+
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`User` (
+  `id` VARCHAR(36) NOT NULL,
+  `username` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(254) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
 -- Table `open_data_management_system`.`Permissions`
 -- -----------------------------------------------------
 DROP TABLE IF EXISTS `open_data_management_system`.`Permissions` ;
@@ -68,14 +84,21 @@ ENGINE = InnoDB;
 DROP TABLE IF EXISTS `open_data_management_system`.`UserAttributes` ;
 
 CREATE TABLE IF NOT EXISTS `open_data_management_system`.`UserAttributes` (
-  `UserID` VARCHAR(36) NOT NULL,
+  `id` VARCHAR(45) NOT NULL,
   `AttributeID` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`UserID`),
-  UNIQUE INDEX `UserID_UNIQUE` (`UserID` ASC) VISIBLE,
+  `User_id` VARCHAR(36) NOT NULL,
   UNIQUE INDEX `AttributeID_UNIQUE` (`AttributeID` ASC) VISIBLE,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_UserAttributes_User1_idx` (`User_id` ASC) VISIBLE,
   CONSTRAINT `id`
     FOREIGN KEY (`AttributeID`)
     REFERENCES `open_data_management_system`.`Attributes` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_UserAttributes_User1`
+    FOREIGN KEY (`User_id`)
+    REFERENCES `open_data_management_system`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -92,38 +115,14 @@ CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataFolder` (
   `date` DATETIME NOT NULL,
   `owner` VARCHAR(36) NOT NULL,
   `name` VARCHAR(45) NOT NULL,
+  `User_id` VARCHAR(36) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`User`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`User` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`User` (
-  `id` VARCHAR(36) NOT NULL,
-  `username` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
-  `email` VARCHAR(254) NOT NULL,
-  `UserAttributes_UserID` VARCHAR(36) NOT NULL,
-  `Request_id` VARCHAR(36) NOT NULL,
-  `DataFolder_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE,
-  INDEX `fk_User_UserAttributes_idx` (`UserAttributes_UserID` ASC) VISIBLE,
-  INDEX `fk_User_DataFolder1_idx` (`DataFolder_id` ASC) VISIBLE,
-  CONSTRAINT `fk_User_UserAttributes`
-    FOREIGN KEY (`UserAttributes_UserID`)
-    REFERENCES `open_data_management_system`.`UserAttributes` (`UserID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_User_DataFolder1`
-    FOREIGN KEY (`DataFolder_id`)
-    REFERENCES `open_data_management_system`.`DataFolder` (`id`)
+  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE,
+  INDEX `fk_DataFolder_User1_idx` (`User_id` ASC) VISIBLE,
+  CONSTRAINT `fk_DataFolder_User1`
+    FOREIGN KEY (`User_id`)
+    REFERENCES `open_data_management_system`.`User` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -144,66 +143,6 @@ CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Data` (
   `tags` VARCHAR(254) NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`DataLink`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`DataLink` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataLink` (
-  `link` VARCHAR(254) NOT NULL,
-  PRIMARY KEY (`link`),
-  UNIQUE INDEX `link_UNIQUE` (`link` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`DataFolder_has_DataLink`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`DataFolder_has_DataLink` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataFolder_has_DataLink` (
-  `DataFolder_id` VARCHAR(36) NOT NULL,
-  `DataLink_link` VARCHAR(254) NOT NULL,
-  PRIMARY KEY (`DataFolder_id`, `DataLink_link`),
-  INDEX `fk_DataFolder_has_DataLink_DataLink1_idx` (`DataLink_link` ASC) VISIBLE,
-  INDEX `fk_DataFolder_has_DataLink_DataFolder1_idx` (`DataFolder_id` ASC) VISIBLE,
-  CONSTRAINT `fk_DataFolder_has_DataLink_DataFolder1`
-    FOREIGN KEY (`DataFolder_id`)
-    REFERENCES `open_data_management_system`.`DataFolder` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_DataFolder_has_DataLink_DataLink1`
-    FOREIGN KEY (`DataLink_link`)
-    REFERENCES `open_data_management_system`.`DataLink` (`link`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`DataLink_has_Data`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`DataLink_has_Data` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataLink_has_Data` (
-  `DataLink_link` VARCHAR(254) NOT NULL,
-  `Data_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`DataLink_link`, `Data_id`),
-  INDEX `fk_DataLink_has_Data_Data1_idx` (`Data_id` ASC) VISIBLE,
-  INDEX `fk_DataLink_has_Data_DataLink1_idx` (`DataLink_link` ASC) VISIBLE,
-  CONSTRAINT `fk_DataLink_has_Data_DataLink1`
-    FOREIGN KEY (`DataLink_link`)
-    REFERENCES `open_data_management_system`.`DataLink` (`link`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_DataLink_has_Data_Data1`
-    FOREIGN KEY (`Data_id`)
-    REFERENCES `open_data_management_system`.`Data` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
 
@@ -249,24 +188,48 @@ ENGINE = InnoDB;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`Search_has_DataLink`
+-- Table `open_data_management_system`.`DataFolder_has_Data`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Search_has_DataLink` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`DataFolder_has_Data` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Search_has_DataLink` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataFolder_has_Data` (
+  `DataFolder_id` VARCHAR(36) NOT NULL,
+  `Data_id` VARCHAR(36) NOT NULL,
+  PRIMARY KEY (`DataFolder_id`, `Data_id`),
+  INDEX `fk_DataFolder_has_Data_Data1_idx` (`Data_id` ASC) VISIBLE,
+  INDEX `fk_DataFolder_has_Data_DataFolder1_idx` (`DataFolder_id` ASC) VISIBLE,
+  CONSTRAINT `fk_DataFolder_has_Data_DataFolder1`
+    FOREIGN KEY (`DataFolder_id`)
+    REFERENCES `open_data_management_system`.`DataFolder` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION,
+  CONSTRAINT `fk_DataFolder_has_Data_Data1`
+    FOREIGN KEY (`Data_id`)
+    REFERENCES `open_data_management_system`.`Data` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
+
+
+-- -----------------------------------------------------
+-- Table `open_data_management_system`.`Search_has_Data`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `open_data_management_system`.`Search_has_Data` ;
+
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Search_has_Data` (
   `Search_id` VARCHAR(36) NOT NULL,
-  `DataLink_link` VARCHAR(254) NOT NULL,
-  PRIMARY KEY (`Search_id`, `DataLink_link`),
-  INDEX `fk_Search_has_DataLink_DataLink1_idx` (`DataLink_link` ASC) VISIBLE,
-  INDEX `fk_Search_has_DataLink_Search1_idx` (`Search_id` ASC) VISIBLE,
-  CONSTRAINT `fk_Search_has_DataLink_Search1`
+  `Data_id` VARCHAR(36) NOT NULL,
+  PRIMARY KEY (`Search_id`, `Data_id`),
+  INDEX `fk_Search_has_Data_Data1_idx` (`Data_id` ASC) VISIBLE,
+  INDEX `fk_Search_has_Data_Search1_idx` (`Search_id` ASC) VISIBLE,
+  CONSTRAINT `fk_Search_has_Data_Search1`
     FOREIGN KEY (`Search_id`)
     REFERENCES `open_data_management_system`.`Search` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Search_has_DataLink_DataLink1`
-    FOREIGN KEY (`DataLink_link`)
-    REFERENCES `open_data_management_system`.`DataLink` (`link`)
+  CONSTRAINT `fk_Search_has_Data_Data1`
+    FOREIGN KEY (`Data_id`)
+    REFERENCES `open_data_management_system`.`Data` (`id`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
@@ -275,6 +238,7 @@ ENGINE = InnoDB;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
 
 ```
 
