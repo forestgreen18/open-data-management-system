@@ -393,6 +393,47 @@ export class AppModule {}
 
 ---
 
+## Prisma module
+
+**Filename: prisma.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { PrismaService } from './prisma.service';
+
+@Module({
+  providers: [PrismaService],
+  exports: [PrismaService],
+})
+export class PrismaModule {}
+
+```
+
+---
+
+**Filename: prisma.service.ts**
+
+```Typescript
+import { Injectable, OnModuleInit, OnModuleDestroy } from '@nestjs/common';
+import { PrismaClient } from '@prisma/client';
+
+@Injectable()
+export class PrismaService
+  extends PrismaClient
+  implements OnModuleInit, OnModuleDestroy
+{
+  async onModuleInit() {
+    await this.$connect();
+  }
+
+  async onModuleDestroy() {
+    await this.$disconnect();
+  }
+}
+
+
+```
+
 ## User module
 
 **Filename: user.module.ts**
@@ -537,8 +578,155 @@ export class UserController {
   async create(@Body() userData: Prisma.UserCreateInput): Promise<User> {
     return this.userService.create(userData);
   }
+}
 
+```
+
+## User attributes module
+
+**Filename: user-attributes.module.ts**
+
+```Typescript
+import { Module } from '@nestjs/common';
+import { UserAttributesService } from './user-attributes.service';
+import { UserAttributesController } from './user-attributes.controller';
+import { PrismaModule } from 'src/prisma/prisma.module';
+
+@Module({
+  imports: [PrismaModule],
+  providers: [UserAttributesService],
+  controllers: [UserAttributesController],
+})
+export class UserAttributesModule {}
+```
+
+**Filename: user-attributes.service.ts**
+
+```Typescript
+// user-attributes.service.ts
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { UserAttributes, Prisma } from '@prisma/client';
+import { PrismaService } from 'src/prisma/prisma.service';
+
+@Injectable()
+export class UserAttributesService {
+  constructor(private prisma: PrismaService) {}
+
+  async findAll(): Promise<UserAttributes[]> {
+    return this.prisma.userAttributes.findMany();
+  }
+
+  async findOne(userAttributesId: string): Promise<UserAttributes> {
+    const userAttributes = await this.prisma.userAttributes.findUnique({
+      where: {
+        id: userAttributesId,
+      },
+    });
+
+    if (!userAttributes) {
+      throw new NotFoundException(
+        `UserAttributes with ID ${userAttributesId} not found`,
+      );
+    }
+
+    return userAttributes;
+  }
+
+  async create(
+    data: Prisma.UserAttributesCreateInput,
+  ): Promise<UserAttributes> {
+    return this.prisma.userAttributes.create({
+      data,
+    });
+  }
+
+  async updateOne(
+    userAttributesId: string,
+    data: Prisma.UserAttributesUpdateInput,
+  ): Promise<UserAttributes> {
+    const userAttributes = await this.prisma.userAttributes.findUnique({
+      where: { id: userAttributesId },
+    });
+
+    if (!userAttributes) {
+      throw new NotFoundException(
+        `UserAttributes with ID ${userAttributesId} not found`,
+      );
+    }
+
+    return this.prisma.userAttributes.update({
+      where: { id: userAttributesId },
+      data,
+    });
+  }
+
+  async deleteOne(userAttributesId: string): Promise<UserAttributes> {
+    const userAttributes = await this.prisma.userAttributes.findUnique({
+      where: { id: userAttributesId },
+    });
+
+    if (!userAttributes) {
+      throw new NotFoundException(
+        `UserAttributes with ID ${userAttributesId} not found`,
+      );
+    }
+
+    return this.prisma.userAttributes.delete({
+      where: { id: userAttributesId },
+    });
+  }
   // Add other methods as needed...
 }
 
+```
+
+**Filename: user-attributes.controller.ts**
+
+```Typescript
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Param,
+  Patch,
+  Post,
+} from '@nestjs/common';
+import { UserAttributes, Prisma } from '@prisma/client';
+import { UserAttributesService } from './user-attributes.service';
+
+@Controller('user-attributes')
+export class UserAttributesController {
+  constructor(private readonly userAttributesService: UserAttributesService) {}
+
+  @Get()
+  async findAll(): Promise<UserAttributes[]> {
+    return this.userAttributesService.findAll();
+  }
+
+  @Get(':id')
+  async findOne(@Param('id') id: string): Promise<UserAttributes> {
+    return this.userAttributesService.findOne(id);
+  }
+
+  @Post()
+  async create(
+    @Body() data: Prisma.UserAttributesCreateInput,
+  ): Promise<UserAttributes> {
+    return this.userAttributesService.create(data);
+  }
+
+  @Patch(':id')
+  async updateOne(
+    @Param('id') id: string,
+    @Body() data: Prisma.UserAttributesUpdateInput,
+  ): Promise<UserAttributes> {
+    return this.userAttributesService.updateOne(id, data);
+  }
+
+  @Delete(':id')
+  async deleteOne(@Param('id') id: string): Promise<UserAttributes> {
+    return this.userAttributesService.deleteOne(id);
+  }
+}
 ```
