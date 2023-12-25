@@ -129,3 +129,25 @@ _В цьому розділі необхідно вказати засоби т�
 ### Видалення дозволу
 
 ![DELETE: single permission](image-40.png)
+
+## Attributes
+
+### Отримання усіх атрибутів
+
+![GET: all attributes](image-41.png)
+
+### Створення атрибута
+
+![POST: create an attribute](image-42.png)
+
+### Отримання атрибута
+
+![GET: single attribute](image-43.png)
+
+### Зміна атрибута
+
+![PATCH: update single attribute](image-44.png)
+
+### Видалення атрибута
+
+![DELETE: single attribute](image-45.png)
