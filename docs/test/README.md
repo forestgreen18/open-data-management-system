@@ -107,3 +107,25 @@ _В цьому розділі необхідно вказати засоби т�
 ### Видалення запису
 
 ![DELETE: delete data set and data folder connection](image-35.png)
+
+## Permissions
+
+### Отримання всіх дозволів
+
+![GET: all permissions](image-36.png)
+
+### Створення
+
+![POST: create a single permission](image-37.png)
+
+### Отримання дозволу
+
+![GET: single permission](image-38.png)
+
+### Зміна дозволу
+
+![PATCH: update single permission](image-39.png)
+
+### Видалення дозволу
+
+![DELETE: single permission](image-40.png)
