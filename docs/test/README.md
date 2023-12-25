@@ -1,153 +1,191 @@
 # Тестування працездатності системи
 
-_В цьому розділі необхідно вказати засоби тестування, навести вихідні коди тестів та результати тестування._
+Система була протестована за допомогою інструменту Postman.
+
+Можливий доступ до таких таблиць: Users, Permissions, Attributes, User Attributes, Data, DataFolder та Data_folder_has_data.
 
 Початковий стан бази даних.
 
-![Users table](image.png)
+#### Таблиця користувачів
 
-![Permissions table](image-1.png)
+![Users table](./assets/image.png)
 
-![Attributes table](image-2.png)
+#### Таблиця дозволів
 
-![User attributes table](image-3.png)
+![Permissions table](./assets/image-1.png)
 
-![Data table](image-4.png)
+#### Таблиця атрибутів
 
-![Data folder table](image-5.png)
+![Attributes table](./assets/image-2.png)
 
-![Data folder has data table](image-6.png)
+#### Таблиця атрибутів користувачів
+
+![User attributes table](./assets/image-3.png)
+
+#### Таблиця наборів даних
+
+![Data table](./assets/image-4.png)
+
+#### Таблиця тек з даними
+
+![Data folder table](./assets/image-5.png)
+
+#### Таблиця, що поєднує набори даних із теками даних
+
+![Data folder has data table](./assets/image-6.png)
 
 ## User
 
 ### Створення
 
-![POST: User create](image-18.png)
+![POST: User create](./assets/image-18.png)
 
 ### Отримання усіх користувачів
 
-![GET: get all users](image-11.png)
-![GET: get all users](image-12.png)
-![GET: get all users](image-13.png)
-![GET: get all users](image-14.png)
+![GET: get all users](./assets/image-11.png)
+![GET: get all users](./assets/image-12.png)
+![GET: get all users](./assets/image-13.png)
+![GET: get all users](./assets/image-14.png)
 
 ### Отримання користувача
 
-![GET: single user](image-15.png)
+![GET: single user](./assets/image-15.png)
 
 ### Зміна даних користувача
 
-![PATCH: change single user](image-16.png)
+![PATCH: change single user](./assets/image-16.png)
 
 ### Видалення користувача
 
-![DELETE: delete single user](image-17.png)
+![DELETE: delete single user](./assets/image-17.png)
 
 ## Data folder
 
 ### Отримання усі теки з даними
 
-![GET: all data folders](image-19.png)
-![GET: all data folders](image-20.png)
-![GET: all data folders](image-21.png)
+![GET: all data folders](./assets/image-19.png)
+![GET: all data folders](./assets/image-20.png)
+![GET: all data folders](./assets/image-21.png)
 
 ### Створення
 
-![POST: create data folder](image-22.png)
+![POST: create data folder](./assets/image-22.png)
 
 ### Отримання теки з даними
 
-![GET: single data folder](image-23.png)
+![GET: single data folder](./assets/image-23.png)
 
 ### Зміна теки з даними
 
-![PATCH: change single data folder](image-24.png)
+![PATCH: change single data folder](./assets/image-24.png)
 
 ### Видалення теки з даними
 
-![DELETE: delete single data folder](image-25.png)
+![DELETE: delete single data folder](./assets/image-25.png)
 
 ## Data
 
 ### Отримання усіх наборів даних
 
-![GET: all data sets](image-26.png)
-![Alt text](image-27.png)
+![GET: all data sets](./assets/image-26.png)
+![Alt text](./assets/image-27.png)
 
 ### Створення набору даних
 
-![POST: create a data set](image-28.png)
+![POST: create a data set](./assets/image-28.png)
 
 ### Отримання набору даних
 
-![GET: single data set](image-29.png)
+![GET: single data set](./assets/image-29.png)
 
 ### Зміна набору даних
 
-![PATCH: change single data set](image-30.png)
+![PATCH: change single data set](./assets/image-30.png)
 
 ### Видалення набору даних
 
-![DELETE: single data set](image-31.png)
+![DELETE: single data set](./assets/image-31.png)
 
 ## Data folder and data
 
 ### Отримання усіх запис зв'язку "набір даних - тека"
 
-![GET: all records about data sets and the folders those data sets are stored](image-32.png)
+![GET: all records about data sets and the folders those data sets are stored](./assets/image-32.png)
 
 ### Створення
 
-![POST: connect data set and data folder](image-33.png)
+![POST: connect data set and data folder](./assets/image-33.png)
 
 ### Отримання одного запису
 
-![GET: single connection of data set and data folder](image-34.png)
+![GET: single connection of data set and data folder](./assets/image-34.png)
 
 ### Видалення запису
 
-![DELETE: delete data set and data folder connection](image-35.png)
+![DELETE: delete data set and data folder connection](./assets/image-35.png)
 
 ## Permissions
 
 ### Отримання всіх дозволів
 
-![GET: all permissions](image-36.png)
+![GET: all permissions](./assets/image-36.png)
 
 ### Створення
 
-![POST: create a single permission](image-37.png)
+![POST: create a single permission](./assets/image-37.png)
 
 ### Отримання дозволу
 
-![GET: single permission](image-38.png)
+![GET: single permission](./assets/image-38.png)
 
 ### Зміна дозволу
 
-![PATCH: update single permission](image-39.png)
+![PATCH: update single permission](./assets/image-39.png)
 
 ### Видалення дозволу
 
-![DELETE: single permission](image-40.png)
+![DELETE: single permission](./assets/image-40.png)
 
 ## Attributes
 
 ### Отримання усіх атрибутів
 
-![GET: all attributes](image-41.png)
+![GET: all attributes](./assets/image-41.png)
 
 ### Створення атрибута
 
-![POST: create an attribute](image-42.png)
+![POST: create an attribute](./assets/image-42.png)
 
 ### Отримання атрибута
 
-![GET: single attribute](image-43.png)
+![GET: single attribute](./assets/image-43.png)
 
 ### Зміна атрибута
 
-![PATCH: update single attribute](image-44.png)
+![PATCH: update single attribute](./assets/image-44.png)
 
 ### Видалення атрибута
 
-![DELETE: single attribute](image-45.png)
+![DELETE: single attribute](./assets/image-45.png)
+
+## User attributes
+
+### Отримати всі атрибути користувачів
+
+![GET: all user attributes](./assets/image-46.png)
+
+### Створити атрибут для користувача
+
+![POST: create user attribute](./assets/image-47.png)
+
+### Отримати атрибут для користувача
+
+![GET: single user attribute](./assets/image-48.png)
+
+### Змінити атрибут для користувача
+
+![PATCH: change user attribute](./assets/image-49.png)
+
+### Видалити атрибут для користувача
+
+![DELETE: singe user attribute](./assets/image-50.png)
