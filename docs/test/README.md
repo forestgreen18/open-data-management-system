@@ -42,3 +42,27 @@ _В цьому розділі необхідно вказати засоби т�
 ### Видалення користувача
 
 ![DELETE: delete single user](image-17.png)
+
+## Data folder
+
+### Отримання усі теки з даними
+
+![GET: all data folders](image-19.png)
+![GET: all data folders](image-20.png)
+![GET: all data folders](image-21.png)
+
+### Створення
+
+![POST: create data folder](image-22.png)
+
+### Отримання теки з даними
+
+![GET: single data folder](image-23.png)
+
+### Зміна теки з даними
+
+![PATCH: change single data folder](image-24.png)
+
+### Видалення теки з даними
+
+![DELETE: delete single data folder](image-25.png)
