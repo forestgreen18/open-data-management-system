@@ -12,6 +12,9 @@ SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
 
 -- -----------------------------------------------------
+-- Schema mydb
+-- -----------------------------------------------------
+-- -----------------------------------------------------
 -- Schema open_data_management_system
 -- -----------------------------------------------------
 DROP SCHEMA IF EXISTS `open_data_management_system` ;
@@ -23,45 +26,30 @@ CREATE SCHEMA IF NOT EXISTS `open_data_management_system` DEFAULT CHARACTER SET 
 USE `open_data_management_system` ;
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`User`
+-- Table `open_data_management_system`.`permissions`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`User` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`permissions` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`User` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`permissions` (
   `id` VARCHAR(36) NOT NULL,
-  `username` VARCHAR(45) NOT NULL,
-  `password` VARCHAR(45) NOT NULL,
-  `email` VARCHAR(254) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`Permissions`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Permissions` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Permissions` (
-  `id` VARCHAR(36) NOT NULL,
-  `description` VARCHAR(254) NULL,
+  `description` VARCHAR(254) NULL DEFAULT NULL,
   `level` INT NOT NULL,
   `name` VARCHAR(45) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`Attributes`
+-- Table `open_data_management_system`.`attributes`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Attributes` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`attributes` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Attributes` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`attributes` (
   `id` VARCHAR(36) NOT NULL,
-  `description` VARCHAR(254) NULL,
+  `description` VARCHAR(254) NULL DEFAULT NULL,
   `value` VARCHAR(45) NOT NULL,
   `attributeType` VARCHAR(45) NOT NULL,
   `name` VARCHAR(45) NOT NULL,
@@ -72,173 +60,128 @@ CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Attributes` (
   INDEX `fk_Attributes_Permissions1_idx` (`Permissions_id` ASC) VISIBLE,
   CONSTRAINT `fk_Attributes_Permissions1`
     FOREIGN KEY (`Permissions_id`)
-    REFERENCES `open_data_management_system`.`Permissions` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `open_data_management_system`.`permissions` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`UserAttributes`
+-- Table `open_data_management_system`.`data`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`UserAttributes` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`data` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`UserAttributes` (
-  `id` VARCHAR(45) NOT NULL,
-  `AttributeID` VARCHAR(36) NOT NULL,
-  `User_id` VARCHAR(36) NOT NULL,
-  UNIQUE INDEX `AttributeID_UNIQUE` (`AttributeID` ASC) VISIBLE,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  INDEX `fk_UserAttributes_User1_idx` (`User_id` ASC) VISIBLE,
-  CONSTRAINT `id`
-    FOREIGN KEY (`AttributeID`)
-    REFERENCES `open_data_management_system`.`Attributes` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_UserAttributes_User1`
-    FOREIGN KEY (`User_id`)
-    REFERENCES `open_data_management_system`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`DataFolder`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`DataFolder` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataFolder` (
-  `id` VARCHAR(36) NOT NULL,
-  `description` VARCHAR(254) NULL,
-  `date` DATETIME NOT NULL,
-  `owner` VARCHAR(36) NOT NULL,
-  `name` VARCHAR(45) NOT NULL,
-  `User_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `name_UNIQUE` (`name` ASC) VISIBLE,
-  INDEX `fk_DataFolder_User1_idx` (`User_id` ASC) VISIBLE,
-  CONSTRAINT `fk_DataFolder_User1`
-    FOREIGN KEY (`User_id`)
-    REFERENCES `open_data_management_system`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `open_data_management_system`.`Data`
--- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Data` ;
-
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Data` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`data` (
   `id` VARCHAR(36) NOT NULL,
   `size` DOUBLE NOT NULL,
   `date` DATETIME NOT NULL,
   `dataType` VARCHAR(45) NOT NULL,
   `name` VARCHAR(45) NOT NULL,
-  `description` VARCHAR(254) NULL,
-  `tags` VARCHAR(254) NULL,
+  `description` VARCHAR(254) NULL DEFAULT NULL,
+  `tags` VARCHAR(254) NULL DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`Search`
+-- Table `open_data_management_system`.`user`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Search` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`user` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Search` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`user` (
   `id` VARCHAR(36) NOT NULL,
-  `status` VARCHAR(45) NOT NULL,
-  `date` DATETIME NOT NULL,
-  `searchType` VARCHAR(45) NOT NULL,
-  `target` VARCHAR(36) NULL,
-  `parameters` VARCHAR(254) NULL,
+  `username` VARCHAR(45) NOT NULL,
+  `password` VARCHAR(45) NOT NULL,
+  `email` VARCHAR(254) NOT NULL,
   PRIMARY KEY (`id`),
-  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE)
-ENGINE = InnoDB;
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`User_has_Search`
+-- Table `open_data_management_system`.`datafolder`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`User_has_Search` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`datafolder` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`User_has_Search` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`datafolder` (
+  `id` VARCHAR(36) NOT NULL,
+  `description` VARCHAR(254) NULL DEFAULT NULL,
+  `date` DATETIME NOT NULL,
+  `owner` VARCHAR(254) NOT NULL,
+  `name` VARCHAR(45) NOT NULL,
   `User_id` VARCHAR(36) NOT NULL,
-  `Search_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`User_id`, `Search_id`),
-  INDEX `fk_User_has_Search_Search1_idx` (`Search_id` ASC) VISIBLE,
-  INDEX `fk_User_has_Search_User1_idx` (`User_id` ASC) VISIBLE,
-  CONSTRAINT `fk_User_has_Search_User1`
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_DataFolder_User1_idx` (`User_id` ASC) VISIBLE,
+  CONSTRAINT `fk_DataFolder_User1`
     FOREIGN KEY (`User_id`)
-    REFERENCES `open_data_management_system`.`User` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_User_has_Search_Search1`
-    FOREIGN KEY (`Search_id`)
-    REFERENCES `open_data_management_system`.`Search` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `open_data_management_system`.`user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`DataFolder_has_Data`
+-- Table `open_data_management_system`.`datafolder_has_data`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`DataFolder_has_Data` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`datafolder_has_data` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`DataFolder_has_Data` (
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`datafolder_has_data` (
   `DataFolder_id` VARCHAR(36) NOT NULL,
   `Data_id` VARCHAR(36) NOT NULL,
   PRIMARY KEY (`DataFolder_id`, `Data_id`),
-  INDEX `fk_DataFolder_has_Data_Data1_idx` (`Data_id` ASC) VISIBLE,
   INDEX `fk_DataFolder_has_Data_DataFolder1_idx` (`DataFolder_id` ASC) VISIBLE,
-  CONSTRAINT `fk_DataFolder_has_Data_DataFolder1`
+  INDEX `Data_id_fk_idx` (`Data_id` ASC) VISIBLE,
+  CONSTRAINT `Data_id_fk`
+    FOREIGN KEY (`Data_id`)
+    REFERENCES `open_data_management_system`.`data` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `DataFolder_id_fk`
     FOREIGN KEY (`DataFolder_id`)
-    REFERENCES `open_data_management_system`.`DataFolder` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_DataFolder_has_Data_Data1`
-    FOREIGN KEY (`Data_id`)
-    REFERENCES `open_data_management_system`.`Data` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+    REFERENCES `open_data_management_system`.`datafolder` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 -- -----------------------------------------------------
--- Table `open_data_management_system`.`Search_has_Data`
+-- Table `open_data_management_system`.`userattributes`
 -- -----------------------------------------------------
-DROP TABLE IF EXISTS `open_data_management_system`.`Search_has_Data` ;
+DROP TABLE IF EXISTS `open_data_management_system`.`userattributes` ;
 
-CREATE TABLE IF NOT EXISTS `open_data_management_system`.`Search_has_Data` (
-  `Search_id` VARCHAR(36) NOT NULL,
-  `Data_id` VARCHAR(36) NOT NULL,
-  PRIMARY KEY (`Search_id`, `Data_id`),
-  INDEX `fk_Search_has_Data_Data1_idx` (`Data_id` ASC) VISIBLE,
-  INDEX `fk_Search_has_Data_Search1_idx` (`Search_id` ASC) VISIBLE,
-  CONSTRAINT `fk_Search_has_Data_Search1`
-    FOREIGN KEY (`Search_id`)
-    REFERENCES `open_data_management_system`.`Search` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Search_has_Data_Data1`
-    FOREIGN KEY (`Data_id`)
-    REFERENCES `open_data_management_system`.`Data` (`id`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+CREATE TABLE IF NOT EXISTS `open_data_management_system`.`userattributes` (
+  `id` VARCHAR(45) NOT NULL,
+  `AttributeID` VARCHAR(36) NOT NULL,
+  `User_id` VARCHAR(36) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `AttributeID_UNIQUE` (`AttributeID` ASC) VISIBLE,
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
+  INDEX `fk_UserAttributes_User1_idx` (`User_id` ASC) VISIBLE,
+  CONSTRAINT `fk_UserAttributes_User1`
+    FOREIGN KEY (`User_id`)
+    REFERENCES `open_data_management_system`.`user` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE,
+  CONSTRAINT `id`
+    FOREIGN KEY (`AttributeID`)
+    REFERENCES `open_data_management_system`.`attributes` (`id`)
+    ON DELETE CASCADE
+    ON UPDATE CASCADE)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = utf8mb3;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
-
 
 ```
 
@@ -249,9 +192,6 @@ SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
 ## Конфігураційний файл PRISMA ORM
 
 ```PRISMA
-
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
 
 generator client {
   provider = "prisma-client-js"
@@ -267,11 +207,12 @@ model DataFolder {
   description String?  @db.VarChar(254)
   date        DateTime @default(now())
   owner       String   @db.VarChar(36)
-  name        String   @unique @db.VarChar(45)
+  name        String   @db.VarChar(254)
   userId      String   @map("User_id")
-  user        User     @relation(fields: [userId], references: [id])
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   data        DataFolder_has_Data[]
 }
+
 
 model Data {
   id          String   @id @default(uuid())
@@ -283,36 +224,23 @@ model Data {
   tags        String?  @db.VarChar(254)
   dataFolders DataFolder_has_Data[]
 }
-
 model DataFolder_has_Data {
   Data_id       String
   DataFolder_id String
-  data          Data     @relation(fields: [Data_id], references: [id])
-  dataFolder    DataFolder @relation(fields: [DataFolder_id], references: [id])
+  data          Data     @relation(fields: [Data_id], references: [id], onDelete: Cascade)
+  dataFolder    DataFolder @relation(fields: [DataFolder_id], references: [id], onDelete: Cascade)
 
   @@id([Data_id, DataFolder_id])
 }
 
 
 
-
-model Search {
-  id          String     @id @default(uuid())
-  status      String     @db.VarChar(45)
-  date        DateTime
-  searchType  String     @db.VarChar(45)
-  target      String?    @db.VarChar(36)
-  parameters  String?    @db.VarChar(254)
-  users       User[]     @relation("UserToSearch")
-}
-
 model User {
-   id             String           @id @default(uuid())
+  id             String           @id @default(uuid())
   username       String           @db.VarChar(45)
   password       String           @db.VarChar(45)
   email          String           @unique @db.VarChar(254)
   dataFolders    DataFolder[]
-  searches Search[] @relation("UserToSearch")
   userAttributes UserAttributes[]
 }
 
@@ -342,7 +270,7 @@ model UserAttributes {
   attributeId String     @map("AttributeID")
   attributes  Attributes @relation(fields: [attributeId], references: [id])
   userId      String     @map("User_id")
-  user        User       @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 ```
