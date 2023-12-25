@@ -89,3 +89,21 @@ _В цьому розділі необхідно вказати засоби т�
 ### Видалення набору даних
 
 ![DELETE: single data set](image-31.png)
+
+## Data folder and data
+
+### Отримання усіх запис зв'язку "набір даних - тека"
+
+![GET: all records about data sets and the folders those data sets are stored](image-32.png)
+
+### Створення
+
+![POST: connect data set and data folder](image-33.png)
+
+### Отримання одного запису
+
+![GET: single connection of data set and data folder](image-34.png)
+
+### Видалення запису
+
+![DELETE: delete data set and data folder connection](image-35.png)
